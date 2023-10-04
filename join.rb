@@ -5,7 +5,7 @@ Dotenv.load('.env')
 
 include Api
 
-response = Api::join(ENV["BOT_1_ID"], 8)
+response = Api::join(ENV["#{ENV['SELECTED_BOT']}"], 1)
 
 p response.code
 p JSON.parse(response.body)

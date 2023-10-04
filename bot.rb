@@ -4,19 +4,63 @@ require_relative 'bot_game'
 require 'json'
 include Api
 
-response = Api::get_board(8)
-response_json = JSON.parse(response.body)
-COINS = []
-BOTS = []
-response_json['gameObjects'].each do |obj|
-  if obj['type'] == 'CoinGameObject'
-    COINS << Coin.new(**obj)
-  end
+response = Api::get_board(1)
 
-  if obj['type'] == 'BotGameObject'
-    BOTS << BotGame.new(**obj)
+if response
+  response_json = JSON.parse(response.body)
+  all_coins = []
+  all_bots = []
+  my_bot = nil
+  enemy = nil
+
+  response_json['gameObjects'].each do |obj|
+    if obj['type'] == 'CoinGameObject'
+      all_coins << Coin.new(**obj)
+    end
+
+    if obj['type'] == 'BotGameObject'
+      all_bots << BotGame.new(**obj)
+    end
+  end
+  my_bot = all_bots.find { |bot| bot.me }
+  enemy = all_bots.find { |bot| bot.teamId != my_bot.teamId }
+end
+
+Thread.new do
+  while true do
+    response = Api::get_board(1)
+    response_json = JSON.parse(response.body)
+    temp_all_coins = []
+    temp_all_bots = []
+
+    response_json['gameObjects'].each do |obj|
+      if obj['type'] == 'CoinGameObject'
+        temp_all_coins << Coin.new(**obj)
+      end
+
+      if obj['type'] == 'BotGameObject'
+        temp_all_bots << BotGame.new(**obj)
+      end
+    end
+
+    all_coins = temp_all_coins
+    all_bots = temp_all_bots
+    my_bot = all_bots.find { |bot| bot.me }
+    enemy = all_bots.find { |bot| bot.teamId != my_bot.teamId }
+    sleep 0.1
   end
 end
 
-p response.code
-p JSON.parse(response.body)
+while my_bot.score == 0 do
+  if my_bot.coins == 0
+    my_bot.go_to_nearest_coin(all_coins.map(&:position))
+    sleep 0.8
+  else
+    my_bot.return_base
+    sleep 0.8
+  end
+end
+
+while my_bot.position != enemy.base do
+  my_bot.go_to_enemy_base enemy.base
+end
