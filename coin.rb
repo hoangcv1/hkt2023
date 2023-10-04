@@ -1,13 +1,13 @@
 class Coin
-  def initialize(id, position, point)
-    @id = id
-    @position = position
-    @point = point
+  def initialize(**options)
+    @id = options['id']
+    @position = options['position']
+    @points = options['properties']['points']
  end
 
  def display_details
     puts id
     puts position
-    puts point
+    puts points
  end
 end

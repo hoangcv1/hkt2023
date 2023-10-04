@@ -11,7 +11,11 @@ module Api
   end
 
   def join bot_id, board_id
-    send_request("#{HOST}#{JOIN_BOARD}#{bot_id}/join", 'POST', {"boardId": board_id})
+    send_request(join_api(bot_id), 'POST', {"boardId": board_id})
+  end
+
+  def move bot_id, direction
+    send_request(move_api(bot_id), 'POST', {"direction": direction})
   end
 
   def send_request endpoint, method = 'get', body = {}
@@ -28,5 +32,15 @@ module Api
     end
 
     response
+  end
+
+  private
+
+  def join_api bot_id
+    "#{HOST}#{JOIN_BOARD}#{bot_id}/join"
+  end
+
+  def move_api bot_id
+    "#{HOST}#{JOIN_BOARD}#{bot_id}/move"
   end
 end

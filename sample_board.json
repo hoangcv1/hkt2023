@@ -290,6 +290,36 @@
       },
       "type": "ResetButtonGameObject",
       "properties": ""
-    }
-  ]
+    },
+    {
+      "id": 399,
+      "position": {"x": 3, "y": 3},
+      "type": "BotGameObject",
+      "properties": {
+        "coins": 0,
+        "score": 0,
+        "name": "DaXua",
+        "inventorySize": 5,
+        "canTackle": true,
+        "millisecondsLeft": 221543,
+        "timeJoined": "2023-10-04T07:29:50.477Z",
+        "base": {"x": 3, "y": 3},
+        "teamId": "f4f51616-9f33-4c12-9a13-0f9a86fe8b70"
+      }
+    },
+   {"id": 400, "position": {"x": 3, "y": 3}, "type": "BaseGameObject", "properties": {"name": "DaXua", "teamId": "f4f51616-9f33-4c12-9a13-0f9a86fe8b70"}},
+   {"id": 401,
+    "position": {"x": 11, "y": 11},
+    "type": "BotGameObject",
+    "properties":
+     {"coins": 0,
+      "score": 0,
+      "name": "MaPhai",
+      "inventorySize": 5,
+      "canTackle": true,
+      "millisecondsLeft": 221545,
+      "timeJoined": "2023-10-04T07:29:50.479Z",
+      "base": {"x": 11, "y": 11},
+      "teamId": "f4f51616-9f33-4c12-9a13-0f9a86fe8b70"}},
+   {"id": 402, "position": {"x": 11, "y": 11}, "type": "BaseGameObject", "properties": {"name": "MaPhai", "teamId": "f4f51616-9f33-4c12-9a13-0f9a86fe8b70"}}]
 }
