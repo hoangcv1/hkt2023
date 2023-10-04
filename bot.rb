@@ -1,4 +1,5 @@
 require_relative "api"
+require_relative 'coin'
 require 'json'
 
 include Api

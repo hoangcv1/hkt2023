@@ -1,0 +1,295 @@
+{
+  "id": 8,
+  "width": 15,
+  "height": 15,
+  "speedLimitViolation": {},
+  "features": [
+    {
+      "name": "ResetButtonProvider"
+    },
+    {
+      "name": "BaseProvider"
+    },
+    {
+      "name": "CoinProvider",
+      "config": {
+        "generationRatio": 0.1,
+        "minRatio": 0.01,
+        "bagRatio": 0.2,
+        "chestRatio": 0.5
+      }
+    },
+    {
+      "name": "BotProvider",
+      "config": {
+        "inventorySize": 5,
+        "canTackle": true
+      }
+    },
+    {
+      "name": "GateProvider",
+      "config": {
+        "pairs": 1
+      }
+    },
+    {
+      "name": "GateResetProvider",
+      "config": {
+        "seconds": 30
+      }
+    }
+  ],
+  "gameObjects": [
+    {
+      "id": 169,
+      "position": {
+        "x": 4,
+        "y": 13
+      },
+      "type": "CoinGameObject",
+      "properties": {
+        "points": 2
+      }
+    },
+    {
+      "id": 170,
+      "position": {
+        "x": 5,
+        "y": 9
+      },
+      "type": "CoinGameObject",
+      "properties": {
+        "points": 2
+      }
+    },
+    {
+      "id": 172,
+      "position": {
+        "x": 10,
+        "y": 5
+      },
+      "type": "CoinGameObject",
+      "properties": {
+        "points": 2
+      }
+    },
+    {
+      "id": 173,
+      "position": {
+        "x": 8,
+        "y": 1
+      },
+      "type": "CoinGameObject",
+      "properties": {
+        "points": 4
+      }
+    },
+    {
+      "id": 174,
+      "position": {
+        "x": 14,
+        "y": 1
+      },
+      "type": "CoinGameObject",
+      "properties": {
+        "points": 4
+      }
+    },
+    {
+      "id": 175,
+      "position": {
+        "x": 8,
+        "y": 11
+      },
+      "type": "CoinGameObject",
+      "properties": {
+        "points": 1
+      }
+    },
+    {
+      "id": 176,
+      "position": {
+        "x": 13,
+        "y": 10
+      },
+      "type": "CoinGameObject",
+      "properties": {
+        "points": 1
+      }
+    },
+    {
+      "id": 177,
+      "position": {
+        "x": 14,
+        "y": 6
+      },
+      "type": "CoinGameObject",
+      "properties": {
+        "points": 1
+      }
+    },
+    {
+      "id": 178,
+      "position": {
+        "x": 1,
+        "y": 9
+      },
+      "type": "CoinGameObject",
+      "properties": {
+        "points": 1
+      }
+    },
+    {
+      "id": 179,
+      "position": {
+        "x": 13,
+        "y": 14
+      },
+      "type": "CoinGameObject",
+      "properties": {
+        "points": 1
+      }
+    },
+    {
+      "id": 180,
+      "position": {
+        "x": 11,
+        "y": 0
+      },
+      "type": "CoinGameObject",
+      "properties": {
+        "points": 1
+      }
+    },
+    {
+      "id": 181,
+      "position": {
+        "x": 4,
+        "y": 4
+      },
+      "type": "CoinGameObject",
+      "properties": {
+        "points": 1
+      }
+    },
+    {
+      "id": 182,
+      "position": {
+        "x": 0,
+        "y": 2
+      },
+      "type": "CoinGameObject",
+      "properties": {
+        "points": 1
+      }
+    },
+    {
+      "id": 183,
+      "position": {
+        "x": 3,
+        "y": 0
+      },
+      "type": "CoinGameObject",
+      "properties": {
+        "points": 1
+      }
+    },
+    {
+      "id": 184,
+      "position": {
+        "x": 11,
+        "y": 8
+      },
+      "type": "CoinGameObject",
+      "properties": {
+        "points": 1
+      }
+    },
+    {
+      "id": 185,
+      "position": {
+        "x": 1,
+        "y": 13
+      },
+      "type": "CoinGameObject",
+      "properties": {
+        "points": 1
+      }
+    },
+    {
+      "id": 187,
+      "position": {
+        "x": 6,
+        "y": 6
+      },
+      "type": "CoinGameObject",
+      "properties": {
+        "points": 1
+      }
+    },
+    {
+      "id": 188,
+      "position": {
+        "x": 7,
+        "y": 14
+      },
+      "type": "CoinGameObject",
+      "properties": {
+        "points": 1
+      }
+    },
+    {
+      "id": 189,
+      "position": {
+        "x": 8,
+        "y": 8
+      },
+      "type": "CoinGameObject",
+      "properties": {
+        "points": 1
+      }
+    },
+    {
+      "id": 190,
+      "position": {
+        "x": 10,
+        "y": 14
+      },
+      "type": "CoinGameObject",
+      "properties": {
+        "points": 1
+      }
+    },
+    {
+      "id": 191,
+      "position": {
+        "x": 5,
+        "y": 10
+      },
+      "type": "GateGameObject",
+      "properties": {
+        "pairId": "1"
+      }
+    },
+    {
+      "id": 192,
+      "position": {
+        "x": 12,
+        "y": 11
+      },
+      "type": "GateGameObject",
+      "properties": {
+        "pairId": "1"
+      }
+    },
+    {
+      "id": 3429,
+      "position": {
+        "x": 7,
+        "y": 7
+      },
+      "type": "ResetButtonGameObject",
+      "properties": ""
+    }
+  ]
+}
