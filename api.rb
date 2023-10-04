@@ -3,10 +3,15 @@ require 'net/http'
 
 HOST = 'https://api-zarena.zinza.com.vn/'
 GET_BOARD = 'api/boards/'.freeze
+JOIN_BOARD = 'api/bots/'.freeze
 
 module Api
   def get_board id
     send_request("#{HOST}#{GET_BOARD}#{id}")
+  end
+
+  def join bot_id, board_id
+    send_request("#{HOST}#{JOIN_BOARD}#{bot_id}/join", 'POST', {"boardId": board_id})
   end
 
   def send_request endpoint, method = 'get', body = {}
@@ -18,7 +23,8 @@ module Api
     if method == 'get'
       response = Net::HTTP.get_response(url)
     else
-      response = Net::HTTP.post_form(url, body)
+      headers = { 'Content-Type': 'application/json' }
+      response = Net::HTTP.post(url, body.to_json, headers)
     end
 
     response
