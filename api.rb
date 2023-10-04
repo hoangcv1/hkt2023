@@ -14,6 +14,10 @@ module Api
     send_request("#{HOST}#{JOIN_BOARD}#{bot_id}/join", 'POST', {"boardId": board_id})
   end
 
+  def move bot_id, direction
+    send_request("#{HOST}#{JOIN_BOARD}#{bot_id}/move", 'POST', {"direction": direction})
+  end
+
   def send_request endpoint, method = 'get', body = {}
     url = URI(endpoint)
 
