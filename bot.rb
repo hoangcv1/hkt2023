@@ -4,9 +4,9 @@ require_relative 'bot_game'
 require 'json'
 include Api
 
-response = Api::get_board(1)
+response = Api::get_board(ENV['SELECTED_BOARD'])
 
-if response
+if response&.code == "200"
   response_json = JSON.parse(response.body)
   all_coins = []
   all_bots = []
@@ -28,7 +28,7 @@ end
 
 Thread.new do
   while true do
-    response = Api::get_board(1)
+    response = Api::get_board(ENV['SELECTED_BOARD'].to_i)
     response_json = JSON.parse(response.body)
     temp_all_coins = []
     temp_all_bots = []
@@ -56,11 +56,17 @@ while my_bot.score == 0 do
     my_bot.go_to_nearest_coin(all_coins.map(&:position))
     sleep 0.8
   else
-    my_bot.return_base
+    my_bot.go_to_base
     sleep 0.8
   end
 end
 
 while my_bot.position != enemy.base do
   my_bot.go_to_enemy_base enemy.base
+  sleep 0.8
+end
+
+while my_bot.position == enemy.base do
+  my_bot.go_to_base
+  sleep 0.8
 end

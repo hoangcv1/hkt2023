@@ -5,7 +5,11 @@ Dotenv.load('.env')
 
 include Api
 
-response = Api::join(ENV["#{ENV['SELECTED_BOT']}"], 1)
+response = Api::join(ENV["#{ENV['SELECTED_BOT']}_TOKEN"], ENV['SELECTED_BOARD'].to_i)
 
-p response.code
-p JSON.parse(response.body)
+if response.code == 200
+  p "Join success"
+else
+  p "Join failed #{response.code}"
+  p "#{response.body}"
+end
