@@ -78,5 +78,6 @@ while my_bot.position == enemy.base do
 end
 
 while my_bot.position != my_bot.base do
-  my.bot.go_to_base
+  my_bot.go_to_base
+  sleep 0.8
 end
