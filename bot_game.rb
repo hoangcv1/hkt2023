@@ -44,8 +44,6 @@ class BotGame
     go_to_target enemy_position
   end
 
-  private
-
   def go_to_target target_position
     if position['x'] > target_position['x']
       direction = DIRECTION[:left]
@@ -59,6 +57,15 @@ class BotGame
 
     Api::move(ENV["#{ENV['SELECTED_BOT']}_TOKEN"], direction)
   end
+
+  def enemy_nearby? enemy_position
+    adjacent_horizontally = (position['x'] -  enemy_position['x']).abs == 1 && position['y'] == enemy_position['y']
+    adjacent_vertically = position['x'] ==  enemy_position['x'] && (position['y'] - enemy_position['y']).abs == 1
+
+    adjacent_horizontally || adjacent_vertically
+  end
+
+  private
 
   def euclidean_distance(point1, point2)
     Math.sqrt((point1['x'] - point2['x'])**2 + (point1['y'] - point2['y'])**2)

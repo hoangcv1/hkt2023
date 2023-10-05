@@ -67,6 +67,16 @@ while my_bot.position != enemy.base do
 end
 
 while my_bot.position == enemy.base do
-  my_bot.go_to_base
-  sleep 0.8
+  killed = false
+  while (!killed) do
+    if (my_bot.enemy_nearby? enemy.position)
+      my_bot.go_to_target enemy.position
+      killed = true
+    end
+    sleep 0.2
+  end
+end
+
+while my_bot.position != my_bot.base do
+  my.bot.go_to_base
 end
