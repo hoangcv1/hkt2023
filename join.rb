@@ -7,7 +7,7 @@ include Api
 
 response = Api::join(ENV["#{ENV['SELECTED_BOT']}_TOKEN"], ENV['SELECTED_BOARD'].to_i)
 
-if response.code == 200
+if response.code == "200"
   p "Join success"
 else
   p "Join failed #{response.code}"

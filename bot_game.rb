@@ -1,10 +1,13 @@
 require 'dotenv'
+require_relative 'distance'
+
+include Distance
 Dotenv.load('.env')
 
 DIRECTION = { up: 'UP', down: 'DOWN', left: 'LEFT', right: 'RIGHT' }
 
 class BotGame
-  attr_accessor :id, :position, :coins, :score, :name, :inventorySize, :canTackle, :millisecondsLeft, :timeJoined, :base, :teamId, :me, :status
+  attr_accessor :id, :position, :coins, :score, :name, :inventorySize, :canTackle, :millisecondsLeft, :timeJoined, :base, :teamId, :me, :status, :enemy_id
 
   def initialize(**options)
     @id = options['id']
@@ -23,15 +26,7 @@ class BotGame
   end
 
   def go_to_nearest_coin coin_positions
-    nearest_coin_position = nil
-    min_distance = Float::INFINITY
-    coin_positions.each do |coin_position|
-      distance = euclidean_distance(position, coin_position)
-      if distance < min_distance
-        min_distance = distance
-        nearest_coin_position = coin_position
-      end
-    end
+    nearest_coin_position = Distance::find_the_nearest(position, coin_positions)
 
     go_to_target nearest_coin_position
   end
@@ -55,7 +50,7 @@ class BotGame
       direction = DIRECTION[:down]
     end
 
-    Api::move(ENV["#{ENV['SELECTED_BOT']}_TOKEN"], direction)
+    response = Api::move(ENV["#{ENV['SELECTED_BOT']}_TOKEN"], direction)
   end
 
   def enemy_nearby? enemy_position
@@ -63,11 +58,5 @@ class BotGame
     adjacent_vertically = position['x'] ==  enemy_position['x'] && (position['y'] - enemy_position['y']).abs == 1
 
     adjacent_horizontally || adjacent_vertically
-  end
-
-  private
-
-  def euclidean_distance(point1, point2)
-    Math.sqrt((point1['x'] - point2['x'])**2 + (point1['y'] - point2['y'])**2)
   end
 end

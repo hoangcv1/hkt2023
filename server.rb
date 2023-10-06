@@ -3,16 +3,18 @@ require_relative 'coin'
 require_relative 'bot_game'
 require 'json'
 include Api
+include Distance
 
+response = Api::join(ENV["#{ENV['SELECTED_BOT']}_TOKEN"], ENV['SELECTED_BOARD'].to_i)
 response = Api::get_board(ENV['SELECTED_BOARD'])
+enemy_id = 0
+all_coins = []
+all_bots = []
+my_bot = nil
+enemy = nil
 
 if response&.code == "200"
   response_json = JSON.parse(response.body)
-  all_coins = []
-  all_bots = []
-  my_bot = nil
-  enemy = nil
-
   response_json['gameObjects'].each do |obj|
     if obj['type'] == 'CoinGameObject'
       all_coins << Coin.new(**obj)
@@ -23,7 +25,11 @@ if response&.code == "200"
     end
   end
   my_bot = all_bots.find { |bot| bot.me }
-  enemy = all_bots.find { |bot| bot.teamId != my_bot.teamId }
+  enemies = all_bots.select { |bot| bot.teamId != my_bot.teamId }
+  bases = enemies.map(&:base)
+  nearest_base = Distance::find_the_nearest(my_bot.position, bases)
+  enemy = enemies.find { |e| e.base == nearest_base }
+  enemy_id = enemy&.id
 end
 
 Thread.new do
@@ -46,8 +52,8 @@ Thread.new do
     all_coins = temp_all_coins
     all_bots = temp_all_bots
     my_bot = all_bots.find { |bot| bot.me }
-    enemy = all_bots.find { |bot| bot.teamId != my_bot.teamId }
-    sleep 0.1
+    enemy = all_bots.find { |bot| bot.id == enemy_id }
+    sleep 0.05
   end
 end
 
@@ -74,7 +80,7 @@ while (true) do
         my_bot.go_to_target enemy.position
         killed = true
       end
-      sleep 0.2
+      sleep 0.05
     end
   end
 
