@@ -7,7 +7,18 @@ Dotenv.load('.env')
 DIRECTION = { up: 'UP', down: 'DOWN', left: 'LEFT', right: 'RIGHT' }
 
 class BotGame
-  attr_accessor :id, :position, :coins, :score, :name, :inventorySize, :canTackle, :millisecondsLeft, :timeJoined, :base, :teamId, :me, :status, :enemy_id
+  attr_accessor :id,
+  :position,
+  :coins,
+  :score,
+  :name,
+  :inventorySize,
+  :base,
+  :teamId,
+  :me,
+  :status,
+  :enemy_id,
+  :danger_positions
 
   def initialize(**options)
     @id = options['id']
@@ -16,9 +27,6 @@ class BotGame
     @score = options['properties']['score']
     @name = options['properties']['name']
     @inventorySize = options['properties']['inventorySize']
-    @canTackle = options['properties']['canTackle']
-    @millisecondsLeft = options['properties']['millisecondsLeft']
-    @timeJoined = options['properties']['timeJoined']
     @base = options['properties']['base']
     @teamId = options['properties']['teamId']
     @me = options['properties']['name'] == ENV["#{ENV["SELECTED_BOT"]}_NAME"]
@@ -26,31 +34,45 @@ class BotGame
   end
 
   def go_to_nearest_coin coin_positions
+    p "go_to_nearest_coin"
     nearest_coin_position = Distance::find_the_nearest(position, coin_positions)
 
     go_to_target nearest_coin_position
   end
 
   def go_to_base
+    p "go_to_base"
     go_to_target base
   end
 
   def go_to_enemy_base enemy_position
+    p "go_to_enemy_base"
+
     go_to_target enemy_position
   end
 
   def go_to_target target_position
+    possible_directions = []
+
     if position['x'] > target_position['x']
-      direction = DIRECTION[:left]
+      possible_directions << DIRECTION[:left]
     elsif position['x'] < target_position['x']
-      direction = DIRECTION[:right]
-    elsif position['y'] > target_position['y']
-      direction = DIRECTION[:up]
-    else
-      direction = DIRECTION[:down]
+      possible_directions << DIRECTION[:right]
     end
 
-    response = Api::move(ENV["#{ENV['SELECTED_BOT']}_TOKEN"], direction)
+    if position['y'] > target_position['y']
+      possible_directions << DIRECTION[:up]
+    elsif position['y'] < target_position['y']
+      possible_directions << DIRECTION[:down]
+    end
+    possible_target_positions = possible_directions.map { |direction| Distance::possible_target(position, direction)}
+    p danger_positions
+    unless (possible_target_positions - danger_positions).empty?
+      p Distance::direction(position, possible_target_positions.first)
+      Api::move(ENV["#{ENV['SELECTED_BOT']}_TOKEN"], Distance::direction(position, possible_target_positions.first))
+    else
+      p "Nowhere to go"
+    end
   end
 
   def enemy_nearby? enemy_position

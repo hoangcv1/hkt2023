@@ -1,6 +1,7 @@
 require_relative 'api'
 require_relative 'coin'
 require_relative 'bot_game'
+require_relative 'distance'
 require 'json'
 include Api
 include Distance
@@ -12,6 +13,9 @@ all_coins = []
 all_bots = []
 my_bot = nil
 enemy = nil
+enemy_positions = []
+danger_position = []
+temp_all_portals = []
 
 if response&.code == "200"
   response_json = JSON.parse(response.body)
@@ -23,6 +27,10 @@ if response&.code == "200"
     if obj['type'] == 'BotGameObject'
       all_bots << BotGame.new(**obj)
     end
+
+    if obj['type'] == 'GateGameObject'
+      temp_all_portals << obj['position']
+    end
   end
   my_bot = all_bots.find { |bot| bot.me }
   enemies = all_bots.select { |bot| bot.teamId != my_bot.teamId }
@@ -30,6 +38,10 @@ if response&.code == "200"
   nearest_base = Distance::find_the_nearest(my_bot.position, bases)
   enemy = enemies.find { |e| e.base == nearest_base }
   enemy_id = enemy&.id
+  enemy_positions = all_bots.select { |bot| !bot.me }.map(&:position).flat_map { |pos|
+    Distance::find_all_around(pos)
+  }
+  my_bot.danger_positions = enemy_positions + temp_all_portals
 end
 
 Thread.new do
@@ -38,6 +50,7 @@ Thread.new do
     response_json = JSON.parse(response.body)
     temp_all_coins = []
     temp_all_bots = []
+    temp_all_portals = []
 
     response_json['gameObjects'].each do |obj|
       if obj['type'] == 'CoinGameObject'
@@ -47,13 +60,29 @@ Thread.new do
       if obj['type'] == 'BotGameObject'
         temp_all_bots << BotGame.new(**obj)
       end
+
+      if obj['type'] == 'GateGameObject'
+        temp_all_portals << obj['position']
+      end
     end
 
     all_coins = temp_all_coins
     all_bots = temp_all_bots
-    my_bot = all_bots.find { |bot| bot.me }
+    all_bots.each { |bot|
+      if bot.me
+        my_bot.position = bot.position
+        my_bot.coins = bot.coins
+        my_bot.score == bot.score
+        my_bot.danger_positions = enemy_positions + temp_all_portals
+      end
+    }
+
     enemy = all_bots.find { |bot| bot.id == enemy_id }
-    sleep 0.05
+    enemy_positions = all_bots.select { |bot| !bot.me }.map(&:position).flat_map { |pos|
+      Distance::find_all_around(pos)
+    }
+
+    sleep 0.2
   end
 end
 
