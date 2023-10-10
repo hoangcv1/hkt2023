@@ -6,8 +6,6 @@ require 'json'
 include Api
 include Distance
 
-MIN_SLEEP=0.8.freeze
-
 response = Api::join(ENV["#{ENV['SELECTED_BOT']}_TOKEN"], ENV['SELECTED_BOARD'].to_i)
 if response.code == "200"
   p "Joined #{ENV['SELECTED_BOT']}"
@@ -34,7 +32,8 @@ if response&.code == "200"
   nearest_base = Distance::nearest_base(my_bot, enemy_bases)
   enemy = enemies.find { |e| e.base == nearest_base }
   enemy_positions = all_bots.select { |bot| !bot.me }.map(&:position).flat_map { |pos| Distance::find_all_around(pos) }
-  my_bot.danger_positions = enemy_positions + all_portals
+  my_bot.danger_positions = enemy_positions
+  my_bot.portal_positions = all_portals
 end
 
 Thread.new do
@@ -49,7 +48,8 @@ Thread.new do
           my_bot.position = bot.position
           my_bot.coins = bot.coins
           my_bot.score = bot.score
-          my_bot.danger_positions = enemy_positions + all_portals
+          my_bot.danger_positions = enemy_positions
+          my_bot.portal_positions = all_portals
         end
       }
 
@@ -69,36 +69,36 @@ end
 while my_bot.score == 0 do
   if my_bot.coins == 0
     start_time = my_bot.go_to_nearest_coin(all_coins.map(&:position))
-    sleep (MIN_SLEEP)
+    sleep 0.8
   else
     start_time = my_bot.go_to_base
-    sleep (MIN_SLEEP)
+    sleep 0.8
   end
 end
 
 while (true) do
   if (enemy)
     while my_bot.position != enemy.base do
-      start_time = Time.now
       my_bot.go_to_enemy_base enemy.base
-      sleep (MIN_SLEEP)
+      sleep 0.8
     end
 
     while my_bot.position == enemy.base do
       killed = false
       while (!killed) do
+        p "Waiting for enemy"
         if (my_bot.enemy_nearby? enemy.position)
+          p "Kill"
           my_bot.go_to_target enemy.position
           killed = true
         end
-        sleep 0.1
+        sleep 0.2
       end
     end
 
     while my_bot.position != my_bot.base do
-      start_time = Time.now
       my_bot.go_to_base
-      sleep (MIN_SLEEP)
+      sleep 0.8
     end
   else
     p "enemy not found"

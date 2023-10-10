@@ -60,6 +60,14 @@ module Distance
     end
   end
 
+  def different_direction direction
+    if [DIRECTION[:left], DIRECTION[:right]].include? direction
+      [DIRECTION[:up], DIRECTION[:down]].sample
+    else
+      [DIRECTION[:left], DIRECTION[:right]].sample
+    end
+  end
+
   def euclidean_distance(point1, point2)
     Math.sqrt((point1['x'] - point2['x'])**2 + (point1['y'] - point2['y'])**2)
   end

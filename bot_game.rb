@@ -17,7 +17,8 @@ class BotGame
   :teamId,
   :me,
   :enemy_id,
-  :danger_positions
+  :danger_positions,
+  :portal_positions
 
   def initialize(**options)
     @id = options['id']
@@ -65,14 +66,17 @@ class BotGame
     end
     possible_target_positions = possible_directions.map { |direction| Distance::possible_target(position, direction)}
     unless (possible_target_positions - danger_positions).empty?
-      start_time = Time.now
-      response = Api::move(ENV["#{ENV['SELECTED_BOT']}_TOKEN"], Distance::direction(position, possible_target_positions.sample))
-      p response.code
+      if possible_target_positions.any? { |position| portal_positions.include?(position)}
+        p "Meet portal"
+        response = Api::move(ENV["#{ENV['SELECTED_BOT']}_TOKEN"], Distance::different_direction(Distance::direction(position, possible_target_positions.sample)))
+        p response.code
+      else
+        response = Api::move(ENV["#{ENV['SELECTED_BOT']}_TOKEN"], Distance::direction(position, possible_target_positions.sample))
+        p response.code
+      end
     else
-      start_time = Time.now
       p "Nowhere to go"
     end
-    start_time
   end
 
   def enemy_nearby? enemy_position
