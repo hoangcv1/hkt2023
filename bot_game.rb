@@ -16,7 +16,6 @@ class BotGame
   :base,
   :teamId,
   :me,
-  :status,
   :enemy_id,
   :danger_positions
 
@@ -30,7 +29,6 @@ class BotGame
     @base = options['properties']['base']
     @teamId = options['properties']['teamId']
     @me = options['properties']['name'] == ENV["#{ENV["SELECTED_BOT"]}_NAME"]
-    @status = "FARMING"
   end
 
   def go_to_nearest_coin coin_positions
@@ -66,13 +64,15 @@ class BotGame
       possible_directions << DIRECTION[:down]
     end
     possible_target_positions = possible_directions.map { |direction| Distance::possible_target(position, direction)}
-    p danger_positions
     unless (possible_target_positions - danger_positions).empty?
-      p Distance::direction(position, possible_target_positions.first)
-      Api::move(ENV["#{ENV['SELECTED_BOT']}_TOKEN"], Distance::direction(position, possible_target_positions.first))
+      start_time = Time.now
+      response = Api::move(ENV["#{ENV['SELECTED_BOT']}_TOKEN"], Distance::direction(position, possible_target_positions.sample))
+      p response.code
     else
+      start_time = Time.now
       p "Nowhere to go"
     end
+    start_time
   end
 
   def enemy_nearby? enemy_position
