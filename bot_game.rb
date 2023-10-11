@@ -44,10 +44,17 @@ class BotGame
     go_to_target base
   end
 
-  def go_to_enemy_base enemy_position
+  def go_to_enemy_base enemy_base, enemy_position
     p "go_to_enemy_base"
 
-    go_to_target enemy_position
+    if enemy_position != enemy_base
+      target_position = Distance::position_next_to_base_between_enemy_and_base(enemy_position, enemy_base)
+    else
+      target_position = enemy_base
+    end
+
+    p target_position
+    go_to_target target_position
   end
 
   def go_to_target target_position

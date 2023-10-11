@@ -79,7 +79,7 @@ end
 while (true) do
   if (enemy)
     while my_bot.position != enemy.base do
-      my_bot.go_to_enemy_base enemy.base
+      my_bot.go_to_enemy_base enemy.base, enemy.position
       sleep 0.8
     end
 
