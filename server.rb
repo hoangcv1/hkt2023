@@ -72,7 +72,7 @@ Thread.new do
       if bot.me
         my_bot.position = bot.position
         my_bot.coins = bot.coins
-        my_bot.score == bot.score
+        my_bot.score = bot.score
         my_bot.danger_positions = enemy_positions + temp_all_portals
       end
     }

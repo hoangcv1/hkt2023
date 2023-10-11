@@ -66,10 +66,9 @@ class BotGame
       possible_directions << DIRECTION[:down]
     end
     possible_target_positions = possible_directions.map { |direction| Distance::possible_target(position, direction)}
-    p danger_positions
     unless (possible_target_positions - danger_positions).empty?
-      p Distance::direction(position, possible_target_positions.first)
-      Api::move(ENV["#{ENV['SELECTED_BOT']}_TOKEN"], Distance::direction(position, possible_target_positions.first))
+      response = Api::move(ENV["#{ENV['SELECTED_BOT']}_TOKEN"], Distance::direction(position, possible_target_positions.first))
+      p response.code
     else
       p "Nowhere to go"
     end
