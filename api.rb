@@ -34,6 +34,28 @@ module Api
     response
   end
 
+  def handle_game_objects game_objects
+    all_coins = []
+    all_bots = []
+    all_portals = []
+
+    game_objects.each do |obj|
+      if obj['type'] == 'CoinGameObject'
+        all_coins << Coin.new(**obj)
+      end
+
+      if obj['type'] == 'BotGameObject'
+        all_bots << BotGame.new(**obj)
+      end
+
+      if obj['type'] == 'GateGameObject'
+        all_portals << obj['position']
+      end
+    end
+
+    [all_coins, all_bots, all_portals]
+  end
+
   private
 
   def join_api bot_id

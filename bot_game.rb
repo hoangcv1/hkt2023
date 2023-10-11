@@ -51,26 +51,34 @@ class BotGame
     go_to_target enemy_position
   end
 
-  def go_to_target target_position
-    possible_directions = []
-
-    if position['x'] > target_position['x']
-      possible_directions << DIRECTION[:left]
-    elsif position['x'] < target_position['x']
-      possible_directions << DIRECTION[:right]
-    end
-
-    if position['y'] > target_position['y']
-      possible_directions << DIRECTION[:up]
-    elsif position['y'] < target_position['y']
-      possible_directions << DIRECTION[:down]
-    end
-    possible_target_positions = possible_directions.map { |direction| Distance::possible_target(position, direction)}
-    unless (possible_target_positions - danger_positions).empty?
-      response = Api::move(ENV["#{ENV['SELECTED_BOT']}_TOKEN"], Distance::direction(position, possible_target_positions.first))
-      p response.code
+  def go_to_target target_position, force = false
+    if force
+      start_time = Time.now
+      response = Api::move(ENV["#{ENV['SELECTED_BOT']}_TOKEN"], Distance::direction(position, target_position))
+      p "Code: #{response.code}. Time spent: #{Time.now - start_time}"
     else
-      p "Nowhere to go"
+      possible_directions = []
+
+      if position['x'] > target_position['x']
+        possible_directions << DIRECTION[:left]
+      elsif position['x'] < target_position['x']
+        possible_directions << DIRECTION[:right]
+      end
+
+      if position['y'] > target_position['y']
+        possible_directions << DIRECTION[:up]
+      elsif position['y'] < target_position['y']
+        possible_directions << DIRECTION[:down]
+      end
+      possible_target_positions = possible_directions.map { |direction| Distance::possible_target(position, direction)}
+      possible_target_positions = possible_target_positions - danger_positions
+      unless possible_target_positions.empty?
+        start_time = Time.now
+        response = Api::move(ENV["#{ENV['SELECTED_BOT']}_TOKEN"], Distance::direction(position, possible_target_positions[0]))
+        p "Code: #{response.code}. Time spent: #{Time.now - start_time}"
+      else
+        p "Nowhere to go"
+      end
     end
   end
 
