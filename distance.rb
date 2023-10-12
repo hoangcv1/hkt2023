@@ -65,12 +65,34 @@ module Distance
   end
 
   def nearest_base my_bot, enemy_bases
-    distance_to_base1 = Distance::euclidean_distance(my_bot.base, enemy_bases[0])
-    distance_to_base2 = Distance::euclidean_distance(my_bot.base, enemy_bases[1])
+    distance_to_base1 = euclidean_distance(my_bot.base, enemy_bases[0])
+    distance_to_base2 = euclidean_distance(my_bot.base, enemy_bases[1])
     if distance_to_base1 == distance_to_base2
       enemy_bases[ENV['SELECTED_BOT'] == 'BOT_2' ? 1 : 0]
     else
-      Distance::find_the_nearest(my_bot.position, enemy_bases)
+      find_the_nearest(my_bot.position, enemy_bases)
     end
+  end
+
+  def should_go_to_portal position, near_position, portals, enemy_base
+    far_position = portal_positions.find { |portal_position| portal_position != near_position }
+    temp_position = position.dup
+    if temp_position['x'] < near_position['x']
+      temp_position['x'] -= 2
+    elsif temp_position['x'] > near_position['x']
+      temp_position['x'] += 2
+    elsif temp_position['y'] < near_position['y']
+      temp_position['y'] -= 2
+    elsif temp_position['y'] < near_position['y']
+      temp_position['y'] += 2
+    end
+
+    distance_from_far_gate_to_enemy_base = euclidean_distance(enemy_base, far_position)
+    distance_from_near_gate_to_enemy_base = euclidean_distance(enemy_base, temp_position)
+
+    p "distance_from_far_gate_to_enemy_base: #{distance_from_far_gate_to_enemy_base}"
+    p "distance_from_near_gate_to_enemy_base: #{distance_from_near_gate_to_enemy_base}"
+
+    distance_from_far_gate_to_enemy_base < distance_from_near_gate_to_enemy_base
   end
 end

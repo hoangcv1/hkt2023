@@ -17,8 +17,9 @@ class BotGame
   :teamId,
   :me,
   :status,
-  :enemy_id,
-  :danger_positions
+  :enemy_base,
+  :danger_positions,
+  :portal_positions
 
   def initialize(**options)
     @id = options['id']
@@ -73,9 +74,13 @@ class BotGame
       possible_target_positions = possible_directions.map { |direction| Distance::possible_target(position, direction)}
       possible_target_positions = possible_target_positions - danger_positions
       unless possible_target_positions.empty?
-        start_time = Time.now
-        response = Api::move(ENV["#{ENV['SELECTED_BOT']}_TOKEN"], Distance::direction(position, possible_target_positions[0]))
-        p "Code: #{response.code}. Time spent: #{Time.now - start_time}"
+        if possible_target_positions.count == 1 && portal_positions.include?(possible_target_positions[0])
+          should_go_to_portal(position, possible_target_positions[0], portal_positions, enemy_base)
+        else
+          start_time = Time.now
+          response = Api::move(ENV["#{ENV['SELECTED_BOT']}_TOKEN"], Distance::direction(position, possible_target_positions[0]))
+          p "Code: #{response.code}. Time spent: #{Time.now - start_time}"
+        end
       else
         p "Nowhere to go"
       end

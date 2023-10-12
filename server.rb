@@ -6,11 +6,11 @@ require 'json'
 include Api
 include Distance
 
-response = Api::join(ENV["#{ENV['SELECTED_BOT']}_TOKEN"], ENV['SELECTED_BOARD'].to_i)
-if response.code == "200"
+join_board_api = Api::join(ENV["#{ENV['SELECTED_BOT']}_TOKEN"], ENV['SELECTED_BOARD'].to_i)
+if join_board_api.code == "200"
   p "Joined #{ENV['SELECTED_BOT']}"
 else
-  p response.body
+  p join_board_api.body
 end
 
 response = Api::get_board(ENV['SELECTED_BOARD'])
@@ -23,6 +23,12 @@ enemy = nil
 enemy_positions = []
 danger_position = []
 
+# "check started"
+# while (JSON.parse(response.body)["isStarted"] != "true") do
+#   sleep 1
+#   response = Api::get_board(ENV['SELECTED_BOARD'])
+# end
+
 if response&.code == "200"
   response_json = JSON.parse(response.body)
   all_coins, all_bots, all_portals = Api::handle_game_objects(response_json['gameObjects'])
@@ -33,7 +39,9 @@ if response&.code == "200"
   enemy = enemies.find { |e| e.base == nearest_base }
   enemy_id = enemy&.id
   enemy_positions = all_bots.select { |bot| !bot.me }.map(&:position).flat_map { |pos| Distance::find_all_around(pos) }
-  my_bot.danger_positions = enemy_positions + all_portals
+  my_bot.danger_positions = enemy_positions
+  my_bot.portal_positions = all_portals
+  my_bot.enemy_base = nearest_base
 end
 
 Thread.new do
@@ -47,7 +55,8 @@ Thread.new do
           my_bot.position = bot.position
           my_bot.coins = bot.coins
           my_bot.score = bot.score
-          my_bot.danger_positions = enemy_positions + all_portals
+          my_bot.danger_positions = enemy_positions
+          my_bot.portal_positions = all_portals
           my_bot.status = "RETURN" if my_bot.coins == 5
         end
       }
