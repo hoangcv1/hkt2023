@@ -17,19 +17,19 @@ response = Api::get_board(ENV['SELECTED_BOARD'])
 enemy_id = 0
 all_coins = []
 all_bots = []
+all_portals = []
 my_bot = nil
 enemy = nil
 enemy_positions = []
 danger_position = []
-all_portals = []
 
 if response&.code == "200"
   response_json = JSON.parse(response.body)
   all_coins, all_bots, all_portals = Api::handle_game_objects(response_json['gameObjects'])
   my_bot = all_bots.find { |bot| bot.me }
   enemies = all_bots.select { |bot| bot.teamId != my_bot.teamId }
-  bases = enemies.map(&:base)
-  nearest_base = Distance::find_the_nearest(my_bot.position, bases)
+  enemy_bases = enemies.map(&:base)
+  nearest_base = Distance::nearest_base(my_bot, enemy_bases)
   enemy = enemies.find { |e| e.base == nearest_base }
   enemy_id = enemy&.id
   enemy_positions = all_bots.select { |bot| !bot.me }.map(&:position).flat_map { |pos| Distance::find_all_around(pos) }
@@ -78,10 +78,16 @@ while (true) do
   case my_bot.status
   when "RETURN"
     sleep 0.8
+    if (my_bot.enemy_nearby? enemy.position)
+      my_bot.go_to_target enemy.position, true
+    end
     my_bot.go_to_base
     my_bot.status = "HUNTING" if my_bot.position == my_bot.base
   when "HUNTING"
     sleep 0.8
+    if (my_bot.enemy_nearby? enemy.position)
+      my_bot.go_to_target enemy.position, true
+    end
     my_bot.go_to_enemy_base enemy.base
     my_bot.status = "WAITING" if my_bot.position == enemy.base
   when "WAITING"

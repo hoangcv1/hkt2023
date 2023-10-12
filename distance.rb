@@ -63,4 +63,14 @@ module Distance
   def euclidean_distance(point1, point2)
     Math.sqrt((point1['x'] - point2['x'])**2 + (point1['y'] - point2['y'])**2)
   end
+
+  def nearest_base my_bot, enemy_bases
+    distance_to_base1 = Distance::euclidean_distance(my_bot.base, enemy_bases[0])
+    distance_to_base2 = Distance::euclidean_distance(my_bot.base, enemy_bases[1])
+    if distance_to_base1 == distance_to_base2
+      enemy_bases[ENV['SELECTED_BOT'] == 'BOT_2' ? 1 : 0]
+    else
+      Distance::find_the_nearest(my_bot.position, enemy_bases)
+    end
+  end
 end
