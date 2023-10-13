@@ -1,0 +1,4 @@
+file_to_edit=".env"
+last_line=$(tail -n 1 "$file_to_edit")
+modified_last_line="SELECTED_BOT=BOT_1"
+sed -i "$ s/.*/$modified_last_line/" "$file_to_edit" && ruby server.rb

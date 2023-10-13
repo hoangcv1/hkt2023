@@ -19,7 +19,8 @@ class BotGame
   :status,
   :enemy_base,
   :danger_positions,
-  :portal_positions
+  :gate_positions,
+  :not_return_position
 
   def initialize(**options)
     @id = options['id']
@@ -32,54 +33,55 @@ class BotGame
     @teamId = options['properties']['teamId']
     @me = options['properties']['name'] == ENV["#{ENV["SELECTED_BOT"]}_NAME"]
     @status = "FARMING"
+    @not_return_position = []
   end
 
-  def go_to_nearest_coin coin_positions
-    p "go_to_nearest_coin"
-    nearest_coin_position = Distance::find_the_nearest(position, coin_positions)
+  def go_to_nearest_coin coin_positions, token = nil
+    # p "go_to_nearest_coin"
+    nearest_coin_position = find_the_nearest(position, coin_positions)
 
-    go_to_target nearest_coin_position
+    go_to_target nearest_coin_position, false, token
   end
 
-  def go_to_base
-    p "go_to_base"
-    go_to_target base
+  def go_to_base token = nil
+    # p "go_to_base"
+    go_to_target base, false, token
   end
 
   def go_to_enemy_base enemy_position
-    p "go_to_enemy_base"
+    # p "go_to_enemy_base"
 
     go_to_target enemy_position
   end
 
-  def go_to_target target_position, force = false
+  def go_to_target target_position, force = false, token = nil
+    token = token || ENV["#{ENV['SELECTED_BOT']}_TOKEN"]
+
     if force
-      start_time = Time.now
-      response = Api::move(ENV["#{ENV['SELECTED_BOT']}_TOKEN"], Distance::direction(position, target_position))
-      p "Code: #{response.code}. Time spent: #{Time.now - start_time}"
+      p "force move"
+      move(token, get_direction(position, target_position))
     else
-      possible_directions = []
+      possible_target_positions = possible_target_positions(position, target_position)
+      possible_target_positions = possible_target_positions - danger_positions - not_return_position
 
-      if position['x'] > target_position['x']
-        possible_directions << DIRECTION[:left]
-      elsif position['x'] < target_position['x']
-        possible_directions << DIRECTION[:right]
-      end
-
-      if position['y'] > target_position['y']
-        possible_directions << DIRECTION[:up]
-      elsif position['y'] < target_position['y']
-        possible_directions << DIRECTION[:down]
-      end
-      possible_target_positions = possible_directions.map { |direction| Distance::possible_target(position, direction)}
-      possible_target_positions = possible_target_positions - danger_positions
       unless possible_target_positions.empty?
-        if possible_target_positions.count == 1 && portal_positions.include?(possible_target_positions[0])
-          should_go_to_portal(position, possible_target_positions[0], portal_positions, enemy_base)
+        if gate_positions.any? { |gate| possible_target_positions.include? gate }
+          not_return_position = []
+
+          if should_go_to_gate(position, (possible_target_positions & gate_positions)[0], gate_positions, target_position)
+            gate = (possible_target_positions & gate_positions)[0]
+            move(token, get_direction(position, gate))
+          else
+            not_return_position << position
+            if (possible_target_positions.count == 1)
+              response = move(token, get_different_direction(position, possible_target_positions[0]))
+            else
+              not_gate = (possible_target_positions - gate_positions)[0]
+              response = move(token, get_direction(position, not_gate))
+            end
+          end
         else
-          start_time = Time.now
-          response = Api::move(ENV["#{ENV['SELECTED_BOT']}_TOKEN"], Distance::direction(position, possible_target_positions[0]))
-          p "Code: #{response.code}. Time spent: #{Time.now - start_time}"
+          move(token, get_direction(position, possible_target_positions[0]))
         end
       else
         p "Nowhere to go"

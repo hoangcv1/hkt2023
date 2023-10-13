@@ -28,7 +28,9 @@ module Api
       response = Net::HTTP.get_response(url)
     else
       headers = { 'Content-Type': 'application/json' }
+      start_time = Time.now
       response = Net::HTTP.post(url, body.to_json, headers)
+      p "Response code: #{response.code}. Time spent: #{Time.now - start_time}"
     end
 
     response
@@ -37,7 +39,7 @@ module Api
   def handle_game_objects game_objects
     all_coins = []
     all_bots = []
-    all_portals = []
+    all_gates = []
 
     game_objects.each do |obj|
       if obj['type'] == 'CoinGameObject'
@@ -49,11 +51,11 @@ module Api
       end
 
       if obj['type'] == 'GateGameObject'
-        all_portals << obj['position']
+        all_gates << obj['position']
       end
     end
 
-    [all_coins, all_bots, all_portals]
+    [all_coins, all_bots, all_gates]
   end
 
   private
