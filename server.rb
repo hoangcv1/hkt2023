@@ -22,6 +22,7 @@ my_bot = nil
 enemy = nil
 enemy_positions = []
 danger_position = []
+high_coins = []
 
 # "check started"
 # while (JSON.parse(response.body)["isStarted"] != "true") do
@@ -63,6 +64,7 @@ Thread.new do
 
       enemy = all_bots.find { |bot| bot.id == enemy_id }
       enemy_positions = all_bots.select { |bot| !bot.me }.map(&:position).flat_map { |pos| find_all_around(pos) }
+      high_coins = all_coins.select { |coin| coin.points >= 2 }
 
       sleep 0.05
     rescue => exception
@@ -92,9 +94,18 @@ while (true) do
     end
     my_bot.go_to_base
     if my_bot.position == my_bot.base
-      my_bot.not_return_position = []
-      my_bot.status = "HUNTING"
+      nearby_high_coins = high_coins.map { |coin| get_number_of_steps(my_bot.base, coin.position) }.select{ |x| x < 3 }
+      unless nearby_high_coins.empty?
+        my_bot.status = "FARMING"
+      else
+        my_bot.not_return_position = []
+        my_bot.status = "HUNTING"
+      end
     end
+  when "FARMING"
+    sleep 0.8
+    my_bot.go_to_nearest_coin(all_coins.map(&:position))
+    my_bot.status = "RETURN" if my_bot.coins >= 2
   when "HUNTING"
     sleep 0.8
     if (my_bot.enemy_nearby? enemy.position)
