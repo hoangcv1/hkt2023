@@ -81,7 +81,7 @@ class BotGame
             end
           end
         else
-          move(token, get_direction(position, possible_target_positions[0]))
+          move(token, get_direction(position, possible_target_positions.sample))
         end
       else
         p "Nowhere to go"

@@ -89,10 +89,12 @@ while (true) do
   case my_bot.status
   when "RETURN"
     sleep 0.8
-    if (my_bot.enemy_nearby? enemy.position) && enemy.position != enemy.base
+    if (my_bot.enemy_nearby? enemy.position) && get_number_of_steps(my_bot.position, enemy.base) != 1
       my_bot.go_to_target enemy.position, true
+    else
+      my_bot.go_to_base
     end
-    my_bot.go_to_base
+
     if my_bot.position == my_bot.base
       nearby_high_coins = high_coins.map { |coin| get_number_of_steps(my_bot.base, coin.position) }.select{ |x| x < 3 }
       unless nearby_high_coins.empty?
@@ -110,8 +112,10 @@ while (true) do
     sleep 0.8
     if (my_bot.enemy_nearby? enemy.position)
       my_bot.go_to_target enemy.position, true
+    else
+      my_bot.go_to_enemy_base enemy.base
     end
-    my_bot.go_to_enemy_base enemy.base
+
     if my_bot.position == enemy.base
       my_bot.status = "WAITING"
       my_bot.not_return_position = []

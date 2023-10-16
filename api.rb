@@ -30,7 +30,7 @@ module Api
       headers = { 'Content-Type': 'application/json' }
       start_time = Time.now
       response = Net::HTTP.post(url, body.to_json, headers)
-      p "Response code: #{response.code}. Time spent: #{Time.now - start_time}"
+      p "Response code: #{response.code}. Time now: #{Time.now.strftime("%H:%M:%S.%L")} Time spent: #{Time.now - start_time}"
     end
 
     response
