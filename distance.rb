@@ -131,6 +131,59 @@ module Distance
     end
   end
 
+  def camp_position enemy
+    enemy_position = enemy.position
+    enemy_base = enemy.base
+
+    if enemy_base['x'] < enemy_position['x']
+      if enemy_base['y'] < enemy_position['y']
+        {
+          'x' => enemy_base['x'] + 1,
+          'y' => enemy_base['y'] + 1
+        }
+      elsif enemy_base['y'] == enemy_position['y']
+        {
+          'x' => enemy_base['x'] + 1,
+          'y' => enemy_base['y']
+        }
+      else
+        {
+          'x' => enemy_base['x'] + 1,
+          'y' => enemy_base['y'] - 1
+        }
+      end
+    elsif enemy_base['x'] == enemy_position['x']
+      if enemy_base['y'] < enemy_position['y']
+        {
+          'x' => enemy_base['x'],
+          'y' => enemy_base['y'] + 1
+        }
+      else
+        {
+          'x' => enemy_base['x'],
+          'y' => enemy_base['y'] - 1
+        }
+      end
+    else
+      if enemy_base['y'] < enemy_position['y']
+        {
+          'x' => enemy_base['x'] - 1,
+          'y' => enemy_base['y'] + 1
+        }
+      elsif enemy_base['y'] == enemy_position['y']
+        {
+          'x' => enemy_base['x'] - 1,
+          'y' => enemy_base['y']
+        }
+      else
+        {
+          'x' => enemy_base['x'] - 1,
+          'y' => enemy_base['y'] - 1
+        }
+      end
+    end
+  end
+
   def get_not_return_postion position, my_base, enemy_base
     not_return = [enemy_base]
     vertical_position = [

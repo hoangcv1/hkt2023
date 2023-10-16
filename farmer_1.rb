@@ -32,8 +32,10 @@ if response&.code == "200"
   my_bot.gate_positions = all_gates
 end
 
+start_time = Time.now
+
 Thread.new do
-  while true do
+  while start_time + 300 > Time.now  do
     begin
       response = Api::get_board(ENV['SELECTED_BOARD'].to_i)
       response_json = JSON.parse(response.body)
@@ -55,7 +57,7 @@ Thread.new do
   end
 end
 
-while true do
+while start_time + 300 > Time.now do
   if my_bot.coins < 5
     suitabled_coins = all_coins.select { |coin| coin.points <= (5 - my_bot.coins) }
     if suitabled_coins != []

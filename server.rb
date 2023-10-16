@@ -58,7 +58,7 @@ Thread.new do
           my_bot.score = bot.score
           my_bot.danger_positions = enemy_positions
           my_bot.gate_positions = all_gates
-          my_bot.status = "RETURN" if my_bot.coins == 5
+          my_bot.status = "RETURN" if ([4, 5].include?(my_bot.coins))
         end
       }
 
@@ -113,19 +113,24 @@ while (true) do
     if (my_bot.enemy_nearby? enemy.position)
       my_bot.go_to_target enemy.position, true
     else
-      my_bot.go_to_enemy_base enemy.base
+      my_bot.go_to_target camp_position(enemy)
     end
 
-    if my_bot.position == enemy.base
+    if my_bot.position == camp_position(enemy)
       my_bot.status = "WAITING"
       my_bot.not_return_position = []
     end
   when "WAITING"
-    if (my_bot.enemy_nearby? enemy.position)
-      my_bot.go_to_target enemy.position, true
-      my_bot.not_return_position << get_not_return_postion(my_bot.position, my_bot.base, enemy.base)
-      my_bot.status = "RETURN"
+    if (my_bot.position == camp_position(enemy))
+      if (my_bot.enemy_nearby? enemy.position)
+        my_bot.go_to_target enemy.position, true
+        my_bot.not_return_position << get_not_return_postion(my_bot.position, my_bot.base, enemy.base)
+        my_bot.status = "RETURN"
+      end
+      sleep 0.05
+    else
+      sleep 0.8
+      my_bot.go_to_target camp_position(enemy)
     end
-    sleep 0.05
   end
 end
