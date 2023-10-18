@@ -72,7 +72,7 @@ Thread.new do
   end
 end
 
-while my_bot.score != 0 do
+while my_bot.score == 0 do
   if my_bot.coins == 0
     my_bot.go_to_nearest_coin(all_coins.map(&:position))
     sleep 0.8
@@ -88,8 +88,12 @@ while (true) do
   case my_bot.status
   when "RETURN"
     sleep 0.8
-    if my_bot.nearby_enemy(enemy_positions) && get_number_of_steps(my_bot.position, enemy.base) != 1
-      my_bot.go_to_target my_bot.nearby_enemy(enemy_positions), true
+    if (my_bot.enemy_nearby? enemy.position)
+      my_bot.go_to_target enemy.position, true
+      my_bot.not_return_position << get_not_return_postion(my_bot.position, my_bot.base, enemy.base)
+    elsif my_bot.enemy_nearby?(enemy_positions.reject { |p| p == enemy.position }[0])
+      my_bot.go_to_target(enemy_positions.reject { |p| p == enemy.position }[0], true)
+      my_bot.not_return_position << get_not_return_postion(my_bot.position, my_bot.base, enemy.base)
     else
       my_bot.go_to_base
     end
@@ -105,8 +109,12 @@ while (true) do
     end
   when "FARMING"
     sleep 0.8
-    if (my_bot.nearby_enemy(enemy_positions))
-      my_bot.go_to_target my_bot.nearby_enemy(enemy_positions), true
+    if (my_bot.enemy_nearby? enemy.position)
+      my_bot.go_to_target enemy.position, true
+      my_bot.not_return_position << get_not_return_postion(my_bot.position, my_bot.base, enemy.base)
+    elsif my_bot.enemy_nearby?(enemy_positions.reject { |p| p == enemy.position }[0])
+      my_bot.go_to_target(enemy_positions.reject { |p| p == enemy.position }[0], true)
+      my_bot.not_return_position << get_not_return_postion(my_bot.position, my_bot.base, enemy.base)
     end
 
     my_bot.go_to_nearest_coin(all_coins.map(&:position))
@@ -114,29 +122,34 @@ while (true) do
   when "HUNTING"
     sleep 0.8
     # if (my_bot.position['x'] == enemy.position['x'] == my_bot.base.position['x'] == enemy.base.position['x'])
-    if (my_bot.nearby_enemy(enemy_positions))
-      my_bot.go_to_target my_bot.nearby_enemy(enemy_positions), true
+    if (my_bot.enemy_nearby? enemy.position)
+      my_bot.go_to_target enemy.position, true
+      my_bot.not_return_position << get_not_return_postion(my_bot.position, my_bot.base, enemy.base)
+    elsif my_bot.enemy_nearby?(enemy_positions.reject { |p| p == enemy.position }[0])
+      my_bot.go_to_target(enemy_positions.reject { |p| p == enemy.position }[0], true)
+      my_bot.not_return_position << get_not_return_postion(my_bot.position, my_bot.base, enemy.base)
     else
       my_bot.go_to_target camp_position(enemy)
     end
 
     if my_bot.position == camp_position(enemy)
       my_bot.status = "WAITING"
-      p "Start waiting"
       my_bot.not_return_position = []
     end
   when "WAITING"
     if (my_bot.position == camp_position(enemy))
-      p "my_bot.nearby_enemy(enemy_positions) #{my_bot.nearby_enemy(enemy_positions)}"
-      if my_bot.nearby_enemy(enemy_positions)
-        my_bot.go_to_target my_bot.nearby_enemy(enemy_positions), true
+      if (my_bot.enemy_nearby? enemy.position)
+        my_bot.go_to_target enemy.position, true
         my_bot.not_return_position << get_not_return_postion(my_bot.position, my_bot.base, enemy.base)
-        p "end waiting"
+        my_bot.status = "RETURN"
+      elsif my_bot.enemy_nearby?(enemy_positions.reject { |p| p == enemy.position }[0])
+        my_bot.go_to_target(enemy_positions.reject { |p| p == enemy.position }[0], true)
+        my_bot.not_return_position << get_not_return_postion(my_bot.position, my_bot.base, enemy.base)
         my_bot.status = "RETURN"
       end
       sleep 0.05
     else
-      sleep 0.75
+      sleep 0.8
       my_bot.go_to_target camp_position(enemy)
     end
   end

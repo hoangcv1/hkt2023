@@ -106,4 +106,11 @@ class BotGame
       end
     end
   end
+
+  def enemy_nearby? enemy_position
+    adjacent_horizontally = (position['x'] -  enemy_position['x']).abs == 1 && position['y'] == enemy_position['y']
+    adjacent_vertically = position['x'] ==  enemy_position['x'] && (position['y'] - enemy_position['y']).abs == 1
+
+    adjacent_horizontally || adjacent_vertically
+  end
 end
