@@ -236,5 +236,7 @@ module Distance
         end
       end
     end
+
+    not_return + vertical_position + horizontal_position
   end
 end

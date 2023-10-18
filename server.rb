@@ -8,7 +8,7 @@ include Distance
 
 join_board_api = join(ENV["#{ENV['SELECTED_BOT']}_TOKEN"], ENV['SELECTED_BOARD'].to_i)
 if join_board_api.code == "200"
-  p "Joined #{ENV['SELECTED_BOT']}"
+  p "Joined #{ENV["#{ENV["SELECTED_BOT"]}_NAME"]}"
 else
   p join_board_api.body
 end
@@ -35,12 +35,10 @@ if response&.code == "200"
   all_coins, all_bots, all_gates = handle_game_objects(response_json['gameObjects'])
   my_bot = all_bots.find { |bot| bot.me }
   enemies = all_bots.select { |bot| bot.teamId != my_bot.teamId }
-  enemy_bases = enemies.map(&:base)
-  nearest_base = nearest_base(my_bot, enemy_bases)
+  nearest_base = nearest_base(my_bot, enemies.map(&:base))
   enemy = enemies.find { |e| e.base == nearest_base }
   enemy_id = enemy&.id
-  enemy_positions = all_bots.select { |bot| !bot.me }.map(&:position).flat_map { |pos| find_all_around(pos) }
-  my_bot.danger_positions = enemy_positions
+  my_bot.enemy_positions = all_bots.select { |bot| !bot.me }.map(&:position)
   my_bot.gate_positions = all_gates
   my_bot.enemy_base = nearest_base
 end
@@ -51,29 +49,30 @@ Thread.new do
       response = get_board(ENV['SELECTED_BOARD'].to_i)
       response_json = JSON.parse(response.body)
       all_coins, all_bots, all_gates = handle_game_objects(response_json['gameObjects'])
+      enemy_positions = all_bots.select { |bot| !bot.me }.map(&:position)
+      enemy = all_bots.find { |bot| bot.id == enemy_id }
+
       all_bots.each { |bot|
         if bot.me
           my_bot.position = bot.position
           my_bot.coins = bot.coins
           my_bot.score = bot.score
-          my_bot.danger_positions = enemy_positions
+          my_bot.enemy_positions = enemy_positions
           my_bot.gate_positions = all_gates
           my_bot.status = "RETURN" if ([4, 5].include?(my_bot.coins))
         end
       }
 
-      enemy = all_bots.find { |bot| bot.id == enemy_id }
-      enemy_positions = all_bots.select { |bot| !bot.me }.map(&:position).flat_map { |pos| find_all_around(pos) }
       high_coins = all_coins.select { |coin| coin.points >= 2 }
 
-      sleep 0.05
+      sleep 0.01
     rescue => exception
       p exception
     end
   end
 end
 
-while my_bot.score == 0 do
+while my_bot.score != 0 do
   if my_bot.coins == 0
     my_bot.go_to_nearest_coin(all_coins.map(&:position))
     sleep 0.8
@@ -89,8 +88,8 @@ while (true) do
   case my_bot.status
   when "RETURN"
     sleep 0.8
-    if (my_bot.enemy_nearby? enemy.position) && get_number_of_steps(my_bot.position, enemy.base) != 1
-      my_bot.go_to_target enemy.position, true
+    if my_bot.nearby_enemy(enemy_positions) && get_number_of_steps(my_bot.position, enemy.base) != 1
+      my_bot.go_to_target my_bot.nearby_enemy(enemy_positions), true
     else
       my_bot.go_to_base
     end
@@ -106,30 +105,38 @@ while (true) do
     end
   when "FARMING"
     sleep 0.8
+    if (my_bot.nearby_enemy(enemy_positions))
+      my_bot.go_to_target my_bot.nearby_enemy(enemy_positions), true
+    end
+
     my_bot.go_to_nearest_coin(all_coins.map(&:position))
     my_bot.status = "RETURN" if my_bot.coins >= 2
   when "HUNTING"
     sleep 0.8
-    if (my_bot.enemy_nearby? enemy.position)
-      my_bot.go_to_target enemy.position, true
+    # if (my_bot.position['x'] == enemy.position['x'] == my_bot.base.position['x'] == enemy.base.position['x'])
+    if (my_bot.nearby_enemy(enemy_positions))
+      my_bot.go_to_target my_bot.nearby_enemy(enemy_positions), true
     else
       my_bot.go_to_target camp_position(enemy)
     end
 
     if my_bot.position == camp_position(enemy)
       my_bot.status = "WAITING"
+      p "Start waiting"
       my_bot.not_return_position = []
     end
   when "WAITING"
     if (my_bot.position == camp_position(enemy))
-      if (my_bot.enemy_nearby? enemy.position)
-        my_bot.go_to_target enemy.position, true
+      p "my_bot.nearby_enemy(enemy_positions) #{my_bot.nearby_enemy(enemy_positions)}"
+      if my_bot.nearby_enemy(enemy_positions)
+        my_bot.go_to_target my_bot.nearby_enemy(enemy_positions), true
         my_bot.not_return_position << get_not_return_postion(my_bot.position, my_bot.base, enemy.base)
+        p "end waiting"
         my_bot.status = "RETURN"
       end
       sleep 0.05
     else
-      sleep 0.8
+      sleep 0.75
       my_bot.go_to_target camp_position(enemy)
     end
   end

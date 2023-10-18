@@ -21,14 +21,12 @@ all_coins = []
 all_bots = []
 all_gates = []
 my_bot = nil
-enemy_positions = []
 danger_position = []
 
 if response&.code == "200"
   response_json = JSON.parse(response.body)
   all_coins, all_bots, all_gates = Api::handle_game_objects(response_json['gameObjects'])
   my_bot = all_bots.find { |bot| bot.name == bot_name }
-  my_bot.danger_positions = []
   my_bot.gate_positions = all_gates
 end
 start_time = Time.now
@@ -43,7 +41,6 @@ Thread.new do
           my_bot.position = bot.position
           my_bot.coins = bot.coins
           my_bot.score = bot.score
-          my_bot.danger_positions = []
           my_bot.gate_positions = all_gates
         end
       }
