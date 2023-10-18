@@ -132,6 +132,7 @@ module Distance
   end
 
   def camp_position enemy
+    start_time = Time.now
     enemy_position = enemy.position
     enemy_base = enemy.base
 
@@ -182,6 +183,8 @@ module Distance
         }
       end
     end
+
+    p "Time spent: #{Time.now - start_time}"
   end
 
   def get_not_return_postion position, my_base, enemy_base
