@@ -121,27 +121,19 @@ while (true) do
     my_bot.status = "RETURN" if my_bot.coins >= 2
   when "HUNTING"
     sleep 0.8
-    if (my_bot.position['x'] == enemy.position['x'] == my_bot.base.position['x'] == enemy.base.position['x']) ||
-       (my_bot.position['y'] == enemy.position['y'] == my_bot.base.position['y'] == enemy.base.position['y'])
-      if get_number_of_steps(my_bot.position, enemy.position) < 4
-        p "ne ne ne ne ne ne"
-        move(ENV["#{ENV['SELECTED_BOT']}_TOKEN"], get_different_direction(my_bot.position, enemy.position).sample)
-      end
+    if (my_bot.enemy_nearby? enemy.position)
+      my_bot.go_to_target enemy.position, true
+      my_bot.not_return_position << get_not_return_postion(my_bot.position, my_bot.base, enemy.base)
+    elsif my_bot.enemy_nearby?(enemy_positions.reject { |p| p == enemy.position }[0])
+      my_bot.go_to_target(enemy_positions.reject { |p| p == enemy.position }[0], true)
+      my_bot.not_return_position << get_not_return_postion(my_bot.position, my_bot.base, enemy.base)
     else
-      if (my_bot.enemy_nearby? enemy.position)
-        my_bot.go_to_target enemy.position, true
-        my_bot.not_return_position << get_not_return_postion(my_bot.position, my_bot.base, enemy.base)
-      elsif my_bot.enemy_nearby?(enemy_positions.reject { |p| p == enemy.position }[0])
-        my_bot.go_to_target(enemy_positions.reject { |p| p == enemy.position }[0], true)
-        my_bot.not_return_position << get_not_return_postion(my_bot.position, my_bot.base, enemy.base)
-      else
-        my_bot.go_to_target camp_position(enemy)
-      end
+      my_bot.go_to_target camp_position(enemy)
+    end
 
-      if my_bot.position == camp_position(enemy)
-        my_bot.status = "WAITING"
-        my_bot.not_return_position = []
-      end
+    if my_bot.position == camp_position(enemy)
+      my_bot.status = "WAITING"
+      my_bot.not_return_position = []
     end
   when "WAITING"
     if (my_bot.position == camp_position(enemy))
@@ -156,8 +148,8 @@ while (true) do
       end
       sleep 0.05
     else
-      sleep 0.8
       my_bot.go_to_target camp_position(enemy)
+      sleep 0.8
     end
   end
 end
