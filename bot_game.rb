@@ -113,4 +113,29 @@ class BotGame
 
     adjacent_horizontally || adjacent_vertically
   end
+
+  def coin_nearby? coin_positions
+    coin_positions & nearby_positions
+  end
+
+  def nearby_positions
+    [
+      {
+        'x' => position['x'],
+        'y' => position['y'] + 1
+      },
+      {
+        'x' => position['x'],
+        'y' => position['y'] - 1
+      },
+      {
+        'x' => position['x'] + 1,
+        'y' => position['y']
+      },
+      {
+        'x' => position['x'] - 1,
+        'y' => position['y']
+      }
+    ]
+  end
 end

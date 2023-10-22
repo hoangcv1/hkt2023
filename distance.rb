@@ -207,35 +207,6 @@ module Distance
         'y' => enemy_base['y']
       }
     ]
-    if my_base['x'] == enemy_base['x']
-      if my_base['y'] > enemy_base['y']
-        if position['y'] > enemy_base['y']
-          not_return + vertical_position
-        else
-          not_return
-        end
-      else
-        if position['y'] < enemy_base['y']
-          not_return + vertical_position
-        else
-          not_return
-        end
-      end
-    else
-      if my_base['x'] > enemy_base['x']
-        if position['x'] < enemy_base['x']
-          not_return + horizontal_position
-        else
-          not_return
-        end
-      else
-        if position['x'] > enemy_base['x']
-          not_return + horizontal_position
-        else
-          not_return
-        end
-      end
-    end
 
     not_return + vertical_position + horizontal_position
   end

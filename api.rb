@@ -23,14 +23,25 @@ module Api
 
     http = Net::HTTP.new(url.host, url.port)
     http.use_ssl = true
+    response = nil
 
     if method == 'get'
-      response = Net::HTTP.get_response(url)
+      begin
+        response = http.get(url)
+      rescue Net::OpenTimeout => e
+        p "Timeout when sent GET request"
+      end
     else
       headers = { 'Content-Type': 'application/json' }
       start_time = Time.now
-      response = Net::HTTP.post(url, body.to_json, headers)
-      p "Response code: #{response.code}. Time now: #{Time.now.strftime("%H:%M:%S.%L")} Time spent: #{Time.now - start_time}"
+      begin
+        http.read_timeout = 1
+        response = http.post(url, body.to_json, headers)
+
+        p "Response code: #{response.code}. Time now: #{Time.now.strftime("%H:%M:%S.%L")} Time spent: #{Time.now - start_time}"
+      rescue Net::OpenTimeout => e
+        p "Timeout when sent POST request"
+      end
     end
 
     response

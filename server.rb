@@ -47,23 +47,25 @@ Thread.new do
   while true do
     begin
       response = get_board(ENV['SELECTED_BOARD'].to_i)
-      response_json = JSON.parse(response.body)
-      all_coins, all_bots, all_gates = handle_game_objects(response_json['gameObjects'])
-      enemy_positions = all_bots.select { |bot| !bot.me }.map(&:position)
-      enemy = all_bots.find { |bot| bot.id == enemy_id }
+      unless response.nil?
+        response_json = JSON.parse(response.body)
+        all_coins, all_bots, all_gates = handle_game_objects(response_json['gameObjects'])
+        enemy_positions = all_bots.select { |bot| !bot.me }.map(&:position)
+        enemy = all_bots.find { |bot| bot.id == enemy_id }
 
-      all_bots.each { |bot|
-        if bot.me
-          my_bot.position = bot.position
-          my_bot.coins = bot.coins
-          my_bot.score = bot.score
-          my_bot.enemy_positions = enemy_positions
-          my_bot.gate_positions = all_gates
-          my_bot.status = "RETURN" if ([4, 5].include?(my_bot.coins))
-        end
-      }
+        all_bots.each { |bot|
+          if bot.me
+            my_bot.position = bot.position
+            my_bot.coins = bot.coins
+            my_bot.score = bot.score
+            my_bot.enemy_positions = enemy_positions
+            my_bot.gate_positions = all_gates
+            my_bot.status = "RETURN" if ([4, 5].include?(my_bot.coins))
+          end
+        }
 
-      high_coins = all_coins.select { |coin| coin.points >= 2 }
+        high_coins = all_coins.select { |coin| coin.points >= 2 }
+      end
 
       sleep 0.01
     rescue => exception
@@ -72,7 +74,7 @@ Thread.new do
   end
 end
 
-while my_bot.score != 0 do
+while my_bot.score == 0 do
   if my_bot.coins == 0
     my_bot.go_to_nearest_coin(all_coins.map(&:position))
     sleep 0.8
@@ -145,6 +147,10 @@ while (true) do
         my_bot.go_to_target(enemy_positions.reject { |p| p == enemy.position }[0], true)
         my_bot.not_return_position << get_not_return_postion(my_bot.position, my_bot.base, enemy.base)
         my_bot.status = "RETURN"
+      elsif !my_bot.coin_nearby?(all_coins.map(&:position)).empty?
+        target = my_bot.coin_nearby?(all_coins.map(&:position)).first
+        my_bot.go_to_target target, true
+        sleep 0.8
       end
       sleep 0.05
     else
