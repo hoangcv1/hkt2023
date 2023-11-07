@@ -6,8 +6,8 @@ require 'json'
 include Api
 include Distance
 
-token = 'c4b157e0-2f0b-4af9-a440-e3aa430f0ed1'
-bot_name = '[Test] 72s'
+token = '17cb1e9b-5d33-407f-bc7b-41652cda6ab2'
+bot_name = '[Test] eliot2'
 
 join_board_api = Api::join(token, ENV['SELECTED_BOARD'].to_i)
 if join_board_api.code == "200"

@@ -23,10 +23,12 @@ enemy = nil
 enemy_positions = []
 danger_position = []
 high_coins = []
+speed_limit_violation = {}
 
 # "check started"
 # while (JSON.parse(response.body)["isStarted"] != "true") do
-#   sleep 1
+#   sleep 0.3
+#   p "Checking isStarted"
 #   response = get_board(ENV['SELECTED_BOARD'])
 # end
 
@@ -49,6 +51,7 @@ Thread.new do
       response = get_board(ENV['SELECTED_BOARD'].to_i)
       unless response.nil?
         response_json = JSON.parse(response.body)
+        speed_limit_violation = response_json['speedLimitViolation']
         all_coins, all_bots, all_gates = handle_game_objects(response_json['gameObjects'])
         enemy_positions = all_bots.select { |bot| !bot.me }.map(&:position)
         enemy = all_bots.find { |bot| bot.id == enemy_id }
@@ -60,7 +63,11 @@ Thread.new do
             my_bot.score = bot.score
             my_bot.enemy_positions = enemy_positions
             my_bot.gate_positions = all_gates
-            my_bot.status = "RETURN" if ([4, 5].include?(my_bot.coins))
+            if ([4, 5].include?(my_bot.coins))
+              my_bot.status = "RETURN"
+            elsif speed_limit_violation[enemy.name] && speed_limit_violation[enemy.name] > 10
+              my_bot.status = "FARMING"
+            end
           end
         }
 
@@ -102,7 +109,9 @@ while (true) do
 
     if my_bot.position == my_bot.base
       nearby_high_coins = high_coins.map { |coin| get_number_of_steps(my_bot.base, coin.position) }.select{ |x| x < 3 }
-      unless nearby_high_coins.empty?
+      if !nearby_high_coins.empty?
+        my_bot.status = "FARMING"
+      elsif speed_limit_violation[enemy.name] && speed_limit_violation[enemy.name] > 10
         my_bot.status = "FARMING"
       else
         my_bot.not_return_position = []

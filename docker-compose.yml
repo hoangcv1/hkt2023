@@ -1,0 +1,32 @@
+version: '3'
+services:
+  bot-farm-1:
+    image: hackathon:3.1.4
+    restart: always
+    command: ruby farmer_1.rb
+    environment:
+      SELECTED_BOARD: 5
+  bot-farm-2:
+    image: hackathon:3.1.4
+    restart: always
+    command: ruby farmer_2.rb
+    environment:
+      SELECTED_BOARD: 5
+  # bot-1:
+  #   build:
+  #     context: .
+  #   command: ruby server.rb
+  #   environment:
+  #     BOT_1_TOKEN: 'c09e8f3a-5dd4-42d0-9c41-3c32f7e6e267'
+  #     BOT_1_NAME: '27o'
+  #     SELECTED_BOARD: 5
+  #     SELECTED_BOT: 'BOT_1'
+  # bot-2:
+  #   build:
+  #     context: .
+  #   command: ruby server.rb
+  #   environment:
+  #     BOT_2_TOKEN: '3222d17f-f3f1-4516-ad79-468202c245e0'
+  #     BOT_2_NAME: '72s'
+  #     SELECTED_BOARD: 5
+  #     SELECTED_BOT: 'BOT_2'
