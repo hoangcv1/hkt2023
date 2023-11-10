@@ -47,6 +47,9 @@ Thread.new do
         end
       }
 
+      my_bot.enemy_positions = all_bots.select { |bot| bot.name != bot_name }.map(&:position)
+      p my_bot.enemy_positions
+
       sleep 0.4
     rescue => exception
       p exception

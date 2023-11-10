@@ -30,6 +30,8 @@ module Api
         response = http.get(url)
       rescue Net::OpenTimeout => e
         p "Timeout when sent GET request"
+      rescue
+        p ""
       end
     else
       headers = { 'Content-Type': 'application/json' }
@@ -41,6 +43,9 @@ module Api
         p "Response code: #{response.code}. Time now: #{Time.now.strftime("%H:%M:%S.%L")} Time spent: #{Time.now - start_time}"
       rescue Net::OpenTimeout => e
         p "Timeout when sent POST request"
+      rescue
+        p e
+        p "error"
       end
     end
 

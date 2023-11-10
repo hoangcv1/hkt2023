@@ -24,6 +24,9 @@ enemy_positions = []
 danger_position = []
 high_coins = []
 speed_limit_violation = {}
+timer = 0
+total_waiting_time = 20
+sleep_time = 0.2
 
 # "check started"
 # while (JSON.parse(response.body)["isStarted"] != "true") do
@@ -83,7 +86,7 @@ end
 
 while my_bot.score == 0 do
   if my_bot.coins == 0
-    my_bot.go_to_nearest_coin(all_coins.map(&:position))
+    my_bot.go_to_nearest_coin(high_coins.map(&:position))
     sleep 0.8
   else
     my_bot.go_to_base
@@ -108,7 +111,8 @@ while (true) do
     end
 
     if my_bot.position == my_bot.base
-      nearby_high_coins = high_coins.map { |coin| get_number_of_steps(my_bot.base, coin.position) }.select{ |x| x < 3 }
+      timer = 0
+      nearby_high_coins = high_coins.map { |coin| get_number_of_steps(my_bot.base, coin.position) }.select{ |x| x < 4 }
       if !nearby_high_coins.empty?
         my_bot.status = "FARMING"
       elsif speed_limit_violation[enemy.name] && speed_limit_violation[enemy.name] > 10
@@ -148,6 +152,8 @@ while (true) do
     end
   when "WAITING"
     if (my_bot.position == camp_position(enemy))
+      current_enemy_position = enemy.position
+
       if (my_bot.enemy_nearby? enemy.position)
         my_bot.go_to_target enemy.position, true
         my_bot.not_return_position << get_not_return_postion(my_bot.position, my_bot.base, enemy.base)
@@ -161,9 +167,22 @@ while (true) do
         my_bot.go_to_target target, true
         sleep 0.8
       end
-      sleep 0.05
+      sleep sleep_time
+      timer += 1
     else
       my_bot.go_to_target camp_position(enemy)
+      timer = 0
+      sleep 0.8
+    end
+    p timer
+
+    if timer >= (total_waiting_time/sleep_time) && current_enemy_position == enemy.position
+      if my_bot.score > enemy.score
+        p "Higher score"
+        return
+      end
+
+      go_to_target(enemy.position, true)
       sleep 0.8
     end
   end
