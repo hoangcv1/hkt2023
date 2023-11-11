@@ -190,9 +190,10 @@ while (true) do
   when "FARM_CHEST"
     chest_position = find_the_nearest(my_bot.position, chests.map(&:position))
     if my_bot.coins == 0
-      go_to_target chest_position
+      unnecess_positions = (all_coins - chests).map(&:position)
+      go_to_target(chest_position, false, nil, unness_coins = nil, unnecess_positions)
       sleep 0.8
-      my_bot.status = "RUTURN" if my_bot.coins >= 4
+      my_bot.status = "RUTURN" if my_bot.coins == 5
     else
       my_bot.go_to_nearest_coin(all_coins.map(&:position))
       sleep 0.8
