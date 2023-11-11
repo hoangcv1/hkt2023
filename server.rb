@@ -75,6 +75,7 @@ Thread.new do
         }
 
         high_coins = all_coins.select { |coin| coin.points >= 2 }
+        chests = high_coins.select { |coin| coin.points == 5 }
       end
 
       sleep 0.01
@@ -182,8 +183,17 @@ while (true) do
         return
       end
 
-      go_to_target(enemy.position, true)
-      sleep 0.8
+      unless chests.empty?
+        my_bot.status = "FARM_CHEST"
+      end
+    end
+  when "FARM_CHEST"
+    chest_position = find_the_nearest(my_bot.position, chests.map(&:position))
+    go_to_target chest_position
+    sleep 0.8
+
+    if my_bot.position == chest_position
+      my_bot.status = "RUTURN"
     end
   end
 end
