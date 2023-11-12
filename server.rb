@@ -26,7 +26,7 @@ high_coins = []
 speed_limit_violation = {}
 timer = 0
 total_waiting_time = 20
-sleep_time = 0.2
+sleep_time = 0.05
 
 # "check started"
 # while (JSON.parse(response.body)["isStarted"] != "true") do
