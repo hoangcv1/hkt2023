@@ -66,6 +66,8 @@ Thread.new do
             my_bot.score = bot.score
             my_bot.enemy_positions = enemy_positions
             my_bot.gate_positions = all_gates
+            my_bot.enemy_scores = enemy.score
+
             if ([4, 5].include?(my_bot.coins))
               my_bot.status = "RETURN"
             elsif speed_limit_violation[enemy.name] && speed_limit_violation[enemy.name] > 10
@@ -86,7 +88,11 @@ end
 
 while my_bot.score == 0 do
   if my_bot.coins == 0
-    my_bot.go_to_nearest_coin(high_coins.map(&:position))
+    if (high_coins.length > 0)
+      my_bot.go_to_nearest_coin(high_coins.map(&:position))
+    else
+      my_bot.go_to_nearest_coin(all_coins.map(&:position))
+    end
     sleep 0.8
   else
     my_bot.go_to_base
@@ -102,10 +108,8 @@ while (true) do
     sleep 0.8
     if (my_bot.enemy_nearby? enemy.position)
       my_bot.go_to_target enemy.position, true
-      my_bot.not_return_position << get_not_return_postion(my_bot.position, my_bot.base, enemy.base)
     elsif my_bot.enemy_nearby?(enemy_positions.reject { |p| p == enemy.position }[0])
       my_bot.go_to_target(enemy_positions.reject { |p| p == enemy.position }[0], true)
-      my_bot.not_return_position << get_not_return_postion(my_bot.position, my_bot.base, enemy.base)
     else
       my_bot.go_to_base
     end
@@ -126,22 +130,23 @@ while (true) do
     sleep 0.8
     if (my_bot.enemy_nearby? enemy.position)
       my_bot.go_to_target enemy.position, true
-      my_bot.not_return_position << get_not_return_postion(my_bot.position, my_bot.base, enemy.base)
     elsif my_bot.enemy_nearby?(enemy_positions.reject { |p| p == enemy.position }[0])
       my_bot.go_to_target(enemy_positions.reject { |p| p == enemy.position }[0], true)
-      my_bot.not_return_position << get_not_return_postion(my_bot.position, my_bot.base, enemy.base)
     end
 
-    my_bot.go_to_nearest_coin(all_coins.map(&:position))
+    if (high_coins.length > 0)
+      my_bot.go_to_nearest_coin(high_coins.map(&:position))
+    else
+      my_bot.go_to_nearest_coin(all_coins.map(&:position))
+    end
+
     my_bot.status = "RETURN" if my_bot.coins >= 2
   when "HUNTING"
     sleep 0.8
     if (my_bot.enemy_nearby? enemy.position)
       my_bot.go_to_target enemy.position, true
-      my_bot.not_return_position << get_not_return_postion(my_bot.position, my_bot.base, enemy.base)
     elsif my_bot.enemy_nearby?(enemy_positions.reject { |p| p == enemy.position }[0])
       my_bot.go_to_target(enemy_positions.reject { |p| p == enemy.position }[0], true)
-      my_bot.not_return_position << get_not_return_postion(my_bot.position, my_bot.base, enemy.base)
     else
       my_bot.go_to_target camp_position(enemy)
     end
@@ -157,10 +162,12 @@ while (true) do
       if (my_bot.enemy_nearby? enemy.position)
         my_bot.go_to_target enemy.position, true
         my_bot.not_return_position << get_not_return_postion(my_bot.position, my_bot.base, enemy.base)
+        my_bot.not_return_position = my_bot.not_return_position.uniq.flatten
         my_bot.status = "RETURN"
       elsif my_bot.enemy_nearby?(enemy_positions.reject { |p| p == enemy.position }[0])
         my_bot.go_to_target(enemy_positions.reject { |p| p == enemy.position }[0], true)
         my_bot.not_return_position << get_not_return_postion(my_bot.position, my_bot.base, enemy.base)
+        my_bot.not_return_position = my_bot.not_return_position.uniq.flatten
         my_bot.status = "RETURN"
       elsif !my_bot.coin_nearby?(all_coins.map(&:position)).empty?
         target = my_bot.coin_nearby?(all_coins.map(&:position)).first
@@ -174,16 +181,18 @@ while (true) do
       timer = 0
       sleep 0.8
     end
-    p timer
 
     if timer >= (total_waiting_time/sleep_time) && current_enemy_position == enemy.position
       if my_bot.score > enemy.score
         p "Higher score"
-        return
+      else
+        other_enemy_position = enemy_positions.reject { |p| p == enemy.position }[0]
+        if get_number_of_steps(my_bot.position, enemy.position) == 2 || get_number_of_steps(my_bot.position, other_enemy_position) == 2
+          p "Stand"
+        else
+          my_bot.status = "FARMING"
+        end
       end
-
-      go_to_target(enemy.position, true)
-      sleep 0.8
     end
   end
 end

@@ -60,6 +60,10 @@ module Distance
     end
   end
 
+  def opposite_directions position, target_position
+    DIRECTION.values - possible_directions(position, target_position)
+  end
+
   def possible_directions position, target_position
     possible_directions = []
 

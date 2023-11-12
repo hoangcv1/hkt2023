@@ -20,7 +20,8 @@ class BotGame
   :enemy_base,
   :gate_positions,
   :not_return_position,
-  :enemy_positions
+  :enemy_positions,
+  :enemy_scores
 
   def initialize(**options)
     @id = options['id']
@@ -35,6 +36,7 @@ class BotGame
     @status = "FARMING"
     @not_return_position = []
     @enemy_positions = []
+    @enemy_scores = 0
   end
 
   def go_to_nearest_coin coin_positions, token = nil
@@ -55,25 +57,20 @@ class BotGame
     token = token || ENV["#{ENV['SELECTED_BOT']}_TOKEN"]
 
     if force
-      p "force move"
       move(token, get_direction(position, target_position))
     else
       possible_target_positions = possible_target_positions(position, target_position)
       danger_positions = enemy_positions.flat_map { |pos| find_all_around(pos) } - [base]
       possible_target_positions = possible_target_positions - danger_positions - not_return_position
-
       unless possible_target_positions.empty?
         if gate_positions.any? { |gate| possible_target_positions.include? gate }
-          p "meet portal"
-          not_return_position = []
+          self.not_return_position = []
 
           if should_go_to_gate(position, (possible_target_positions & gate_positions)[0], gate_positions, target_position)
-            p "go 2 gate"
             gate = (possible_target_positions & gate_positions)[0]
             move(token, get_direction(position, gate))
           else
-            p "avoid gate"
-            not_return_position << position
+            self.not_return_position << position
             if (possible_target_positions.count == 1)
               response = move(token, get_different_direction(position, possible_target_positions[0]))
             else
@@ -85,7 +82,9 @@ class BotGame
           move(token, get_direction(position, possible_target_positions.sample))
         end
       else
-        p "Nowhere to go"
+        if status == "RETURN"
+          move(token, opposite_directions(position, target_position).sample)
+        end
       end
     end
   end
