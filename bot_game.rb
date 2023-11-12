@@ -51,7 +51,7 @@ class BotGame
     go_to_target enemy_position
   end
 
-  def go_to_target target_position, force = false, token = nil
+  def go_to_target target_position, force = false, token = nil, unnecess_positions = nil
     token = token || ENV["#{ENV['SELECTED_BOT']}_TOKEN"]
 
     if force
@@ -59,7 +59,7 @@ class BotGame
       move(token, get_direction(position, target_position))
     else
       possible_target_positions = possible_target_positions(position, target_position)
-      danger_positions = enemy_positions.flat_map { |pos| find_all_around(pos) } - [base]
+      danger_positions = enemy_positions.flat_map { |pos| find_all_around(pos) } - [base] + unnecess_positions
       possible_target_positions = possible_target_positions - danger_positions - not_return_position
 
       unless possible_target_positions.empty?
